@@ -3,7 +3,7 @@ import { FaCode, FaServer, FaTools } from "react-icons/fa";
 
 export const About = () => {
   const frontendSkills = ["React", "HTML", "CSS", "TailwindCSS", "JavaScript"];
-  const backendSkills = ["Node.js", "Java", "SQL", "MongoDB", "Express.js"];
+  const backendSkills = ["Node.js", "Java", "MongoDB", "Express.js"];
   const tools = ["Git", "GitHub", "VS Code", "Postman", "Netlify"];
 
   return (
