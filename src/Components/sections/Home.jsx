@@ -29,13 +29,14 @@ export const Home = () => {
 
           
             <a
-              href="/Port/public/Sksham Kaushal   (3).pdf" 
-              download
-              className="flex items-center gap-2 border border-blue-500/50 text-blue-500 py-3 px-6 rounded font-medium transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:bg-blue-500/10"
-            >
-              <FaDownload className="text-blue-500" />
-              Resume
-            </a>
+  href="/Port/sksham-kaushal-resume.pdf"
+  download
+  className="flex items-center gap-2 border border-blue-500/50 text-blue-500 py-3 px-6 rounded font-medium transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:bg-blue-500/10"
+>
+  <FaDownload className="text-blue-500" />
+  Resume
+</a>
+
           </div>
 
        <div className="mt-6 flex justify-center gap-6 text-xl">
