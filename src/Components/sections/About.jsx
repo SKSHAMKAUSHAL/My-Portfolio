@@ -89,7 +89,7 @@ export const About = () => {
     </li>
  
     <li>
-      Gaining hands-on experience in modern technologies like React, Node.js, Git, and Agile practices through continuous collaboration and mentoring.
+      Gaining hands-on experience in modern technologies like React, Node.js, and Git practices through continuous collaboration and mentoring.
     </li>
     </ul>
             </div>
