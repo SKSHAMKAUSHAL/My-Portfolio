@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { RevealOnScroll } from "./RevealOnScroll";
 import emailjs from "@emailjs/browser";
-import { FaGithub, FaLinkedin } from "react-icons/fa"; 
+import { FaGithub, FaLinkedin } from "react-icons/fa";
 
 export const Contact = () => {
   const [formData, setFormData] = useState({
@@ -9,25 +9,29 @@ export const Contact = () => {
     email: "",
     message: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
-    emailjs
-      .sendForm(
+    try {
+      await emailjs.sendForm(
         import.meta.env.VITE_SERVICE_ID,
         import.meta.env.VITE_TEMPLATE_ID,
         e.target,
         import.meta.env.VITE_PUBLIC_KEY
-      )
-      .then(() => {
-        alert("Message Sent!");
-        setFormData({ name: "", email: "", message: "" });
-      })
-      .catch((error) => {
-        console.error("EmailJS Error:", error);
-        alert("Oops! Something went wrong. Please try again.");
-      });
+      );
+
+      // Show success message
+      alert("Message Sent!");
+      setFormData({ name: "", email: "", message: "" });
+    } catch (error) {
+      console.error("EmailJS Error:", error);
+      alert("Oops! Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -88,16 +92,17 @@ export const Contact = () => {
 
             <button
               type="submit"
-              className="w-full bg-blue-500 text-white py-3 px-6 rounded font-medium transition relative overflow-hidden hover:-translate-y-0.5 hover:shadow-[0_0_15px_rgba(59,130,246,0.4)]"
+              disabled={isSubmitting}
+              className="w-full bg-blue-500 text-white py-3 px-6 rounded font-medium transition relative overflow-hidden hover:-translate-y-0.5 hover:shadow-[0_0_15px_rgba(59,130,246,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Send Message
+              {isSubmitting ? "Sending..." : "Send Message"}
             </button>
           </form>
 
-          {/* ✅ Social icons section */}
+          {/* Social icons section */}
           <div className="mt-6 flex justify-center space-x-6 text-white">
             <a
-              href="https://github.com/SKSHAMKAUSHAL" 
+              href="https://github.com/SKSHAMKAUSHAL"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-blue-400 transition"
@@ -106,7 +111,7 @@ export const Contact = () => {
               <FaGithub size={24} />
             </a>
             <a
-              href="https://linkedin.com/in/sksham-kaushal" 
+              href="https://linkedin.com/in/sksham-kaushal"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-blue-400 transition"

@@ -1,57 +1,189 @@
 @import "tailwindcss";
 
-
-html,
-body{
-margin: 0;
-padding: 0;
-font-family: "Space Grotesk", sans-serif;
-background-color: black;
-color: #f3f4f6;
+/* HSL Color System */
+:root {
+  --background: 222 47% 11%;        /* Deep space blue-black */
+  --foreground: 210 40% 98%;        /* Almost white */
+  --primary: 217 91% 60%;           /* Bright blue */
+  --accent: 186 100% 69%;           /* Cyan */
+  --muted: 217 33% 17%;             /* Dark blue-gray */
+  --muted-foreground: 215 20% 65%;  /* Light gray-blue */
 }
 
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Space Grotesk", sans-serif;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  scroll-behavior: smooth;
+}
 
-  @layer utilities {  
-    @keyframes blink {
-      0%,
-      100%
-       {
-        opacity: 1;
-      }
-      50%{
-        opacity: 0;
-      }
-    }
-    .animate-blink{
-      animation: blink 0.8s step-end infinite;
-    }
-  
+/* Custom Utilities */
+@layer utilities {
+  /* Glassmorphism Card */
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-md border border-white/10 shadow-xl;
+  }
 
-  
-    @keyframes loading {
-      0% {
-        transform: translateX(-100%);
-      }
-      100%{
-        transform: translateX(220%);
-      }
+  /* Gradient Text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent;
+  }
+
+  /* Hover Lift Effect */
+  .hover-lift {
+    @apply transition-transform duration-300 hover:-translate-y-2;
+  }
+
+  /* Glow Effect */
+  .glow-effect {
+    @apply shadow-lg shadow-blue-500/50;
+  }
+
+  /* Animations */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
     }
-    .animate-loading-bar{
-      animation: loading 0.8s ease infinite;
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 
-
-  .reveal{
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.7s ease,transform 0.7s ease;
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
-  .reveal.visible{
-    opacity: 1;
-    transform: translateY(0);
+
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 
+  @keyframes glow-pulse {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  @keyframes tilt {
+    0%, 100% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(1deg);
+    }
+    75% {
+      transform: rotate(-1deg);
+    }
+  }
+
+  @keyframes blink {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes loading {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(220%);
+    }
+  }
+
+  /* Animation Classes */
+  .animate-fade-in {
+    animation: fade-in 0.6s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.8s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.5s ease-out;
+  }
+
+  .animate-glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s linear infinite;
+  }
+
+  .animate-tilt {
+    animation: tilt 10s ease-in-out infinite;
+  }
+
+  .animate-blink {
+    animation: blink 0.8s step-end infinite;
+  }
+
+  .animate-loading-bar {
+    animation: loading 0.8s ease infinite;
+  }
+}
+
+/* Reveal on Scroll */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Navigation Link Styles */
 .nav-link {
   @apply relative text-gray-300 hover:text-white transition-colors px-4 py-2 font-medium;
 }
@@ -63,4 +195,9 @@ color: #f3f4f6;
 
 .nav-link:hover::before {
   @apply opacity-100 scale-100;
+}
+
+/* Custom Cursor Styles */
+* {
+  cursor: auto;
 }

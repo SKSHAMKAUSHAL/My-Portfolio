@@ -1,9 +1,43 @@
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 export const Navbar = ({ menuOpen, setMenuOpen }) => {
+  const [scrollProgress, setScrollProgress] = useState(0);
+
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
   }, [menuOpen]);
+
+  const updateScrollProgress = useCallback(() => {
+    const scrollTop = window.pageYOffset;
+    const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const progress = windowHeight > 0 ? (scrollTop / windowHeight) * 100 : 0;
+    setScrollProgress(Math.min(Math.max(progress, 0), 100));
+  }, []);
+
+  useEffect(() => {
+    // Initial calculation
+    updateScrollProgress();
+
+    // Throttled scroll listener for better performance
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          updateScrollProgress();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', updateScrollProgress, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', updateScrollProgress);
+    };
+  }, [updateScrollProgress]);
 
   return (
     <nav className="fixed top-0 w-full z-40 bg-[rgba(10, 10, 10, 0.8)] backdrop-blur-lg border-b border-white/10 shadow-lg">
@@ -43,6 +77,14 @@ export const Navbar = ({ menuOpen, setMenuOpen }) => {
             </a>
           </div>
         </div>
+      </div>
+
+      {/* Scroll Progress Bar */}
+      <div className="absolute bottom-0 left-0 w-full h-1 bg-transparent">
+        <div
+          className="h-full bg-gradient-to-r from-blue-500 via-blue-400 to-cyan-400 transition-all duration-150 ease-out shadow-[0_0_10px_rgba(59,130,246,0.6)]"
+          style={{ width: `${scrollProgress}%` }}
+        />
       </div>
     </nav>
   );
