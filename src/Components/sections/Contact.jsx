@@ -2,6 +2,7 @@ import { useState } from "react";
 import { RevealOnScroll } from "./RevealOnScroll";
 import emailjs from "@emailjs/browser";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
+import { SiLeetcode } from "react-icons/si";
 
 export const Contact = () => {
   const [formData, setFormData] = useState({
@@ -118,6 +119,15 @@ export const Contact = () => {
               aria-label="LinkedIn"
             >
               <FaLinkedin size={24} />
+            </a>
+            <a
+              href="https://leetcode.com/u/SKSHAM_KAUSHAL/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-blue-400 transition"
+              aria-label="Leetcode"
+            >
+              <SiLeetcode size={24} />
             </a>
           </div>
         </div>

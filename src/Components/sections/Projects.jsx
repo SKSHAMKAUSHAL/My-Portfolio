@@ -3,6 +3,31 @@ import { RevealOnScroll } from "./RevealOnScroll";
 export const Projects = () => {
   const projects = [
     {
+      title: "E-Commerce Web App",
+      description: "e-commerce website with modern UI using firebase, payment integration.",
+      tech: ["firebase", "TailwindCSS", "React", "razorpay"],
+      github: "https://github.com/SKSHAMKAUSHAL/E_SHOP_UP.git",
+      live: "https://shop-with-shopup.netlify.app/",
+      image: "/image3.png"
+    },
+    {
+      title: "URL SHORTNER",
+      description: "A URL SHORTNER WEBPAGE",
+      tech: ["MERN STACK", "Redis", "JWT", "Winston","React 19", "Tailwind CSS", "Chart.js", "Lucide Icons","Vercel"],
+      github: "https://github.com/SKSHAMKAUSHAL/GET_SHORT_URL",
+      live: "https://url-shortener-01.vercel.app/",
+      image: "/image8.png"
+    }
+    ,
+    {
+      title: "Movie App",
+      description: "A sleek and responsive movie browsing application built using React.",
+      tech: ["TMDB", "Netlify", "React"],
+      github: "https://github.com/SKSHAMKAUSHAL/Movie-APP.git",
+      live: "https://skmovieapp.netlify.app/",
+      image: "/image4.png"
+    },
+    {
       title: "OPEN BOARD",
       description: "A REAL TIME OPEN BOARD SITE",
       tech: ["HTML", "CSS", "JS", "socket.io", "Express.js"],
@@ -17,22 +42,6 @@ export const Projects = () => {
       github: "https://github.com/SKSHAMKAUSHAL/CAMERA-GALLERY-PROJECT.git",
       live: "https://camera-gallery-sk.netlify.app",
       image: "/image2.png"
-    },
-    {
-      title: "E-Commerce Web App",
-      description: "e-commerce website with modern UI using firebase, payment integration.",
-      tech: ["firebase", "TailwindCSS", "React", "razorpay"],
-      github: "https://github.com/SKSHAMKAUSHAL/E_SHOP_UP.git",
-      live: "https://shop-with-shopup.netlify.app/",
-      image: "/image3.png"
-    },
-    {
-      title: "Movie App",
-      description: "A sleek and responsive movie browsing application built using React.",
-      tech: ["TMDB", "Netlify", "React"],
-      github: "https://github.com/SKSHAMKAUSHAL/Movie-APP.git",
-      live: "https://skmovieapp.netlify.app/",
-      image: "/image4.png"
     },
     {
       title: "FIT BUDDY",

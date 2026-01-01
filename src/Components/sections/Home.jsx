@@ -1,5 +1,6 @@
 import { RevealOnScroll } from "./RevealOnScroll";
 import { FaDownload, FaGithub, FaLinkedin } from "react-icons/fa";
+import { SiLeetcode } from "react-icons/si";
 import proPic from "/proPic.jpg";
 
 export const Home = () => {
@@ -67,6 +68,15 @@ export const Home = () => {
               aria-label="LinkedIn"
             >
               <FaLinkedin />
+            </a>
+            <a
+              href="https://leetcode.com/u/SKSHAM_KAUSHAL/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:text-blue-500 transition-colors duration-300"
+              aria-label="Leetcode"
+            >
+              <SiLeetcode />
             </a>
           </div>
         </div>
