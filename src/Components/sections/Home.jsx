@@ -1,9 +1,28 @@
 import { RevealOnScroll } from "./RevealOnScroll";
 import { FaDownload, FaGithub, FaLinkedin } from "react-icons/fa";
 import { SiLeetcode } from "react-icons/si";
-import proPic from "/proPic.jpg";
+import defaultProPic from "/proPic.jpg";
+import { useState, useEffect } from "react";
+import { db } from "../../firebase";
+import { doc, onSnapshot } from "firebase/firestore";
 
 export const Home = () => {
+  const [proPic, setProPic] = useState(defaultProPic);
+
+  useEffect(() => {
+    if (!db) return;
+    try {
+      const unsub = onSnapshot(doc(db, "settings", "profile"), (docSnap) => {
+        if (docSnap.exists() && docSnap.data().proPicUrl) {
+          setProPic(docSnap.data().proPicUrl);
+        }
+      });
+      return () => unsub();
+    } catch (error) {
+      console.error("Error fetching profile pic:", error);
+    }
+  }, []);
+
   return (
     <section
       id="home"

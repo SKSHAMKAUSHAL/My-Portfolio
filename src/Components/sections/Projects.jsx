@@ -1,7 +1,14 @@
 import { RevealOnScroll } from "./RevealOnScroll";
+import { useState, useEffect } from "react";
+import { FaGithub, FaExternalLinkAlt } from "react-icons/fa";
+import { db } from "../../firebase";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 
 export const Projects = () => {
-  const projects = [
+  const [showAll, setShowAll] = useState(false);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+
+  const defaultProjects = [
     {
       title: "E-Commerce Web App",
       description: "e-commerce website with modern UI using firebase, payment integration.",
@@ -13,12 +20,11 @@ export const Projects = () => {
     {
       title: "URL SHORTNER",
       description: "A URL SHORTNER WEBPAGE",
-      tech: ["MERN STACK", "Redis", "JWT", "Winston","React 19", "Tailwind CSS", "Chart.js", "Lucide Icons","Vercel"],
+      tech: ["MERN", "Redis", "JWT", "React", "Tailwind CSS"],
       github: "https://github.com/SKSHAMKAUSHAL/GET_SHORT_URL",
       live: "https://url-shortener-01.vercel.app/",
       image: "/image8.png"
-    }
-    ,
+    },
     {
       title: "Movie App",
       description: "A sleek and responsive movie browsing application built using React.",
@@ -54,7 +60,7 @@ export const Projects = () => {
     {
       title: "PAC-MAN-GAME",
       description: "Developed a desktop version of the classic Pac-Man game using Java Swing.",
-      tech: ["Java", "Swing", "Object-Oriented Programming"],
+      tech: ["Java", "Swing", "OOP"],
       github: "https://github.com/SKSHAMKAUSHAL/PacMan.git",
       live: "https://no-1-pacman-game.netlify.app/",
       image: "/image6.png"
@@ -69,93 +75,179 @@ export const Projects = () => {
     }
   ];
 
+  const [projects, setProjects] = useState(defaultProjects);
+
+  useEffect(() => {
+    if (!db) return;
+    try {
+      const q = query(collection(db, "projects"), orderBy("createdAt", "desc"));
+      const unsub = onSnapshot(q, (snapshot) => {
+        if (!snapshot.empty) {
+          const p = [];
+          snapshot.forEach(doc => p.push({ id: doc.id, ...doc.data() }));
+          setProjects(p);
+        }
+      });
+      return () => unsub();
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
+  }, []);
+
+  const visibleProjects = showAll ? projects : projects.slice(0, 6);
+
+  // Helper functions for Bento Grid layout
+  const getCardClasses = (index) => {
+    const pattern = index % 4;
+    if (pattern === 0) return "md:col-span-2 lg:col-span-2";
+    if (pattern === 1) return "md:col-span-1 lg:col-span-1";
+    if (pattern === 2) return "md:col-span-1 lg:col-span-1";
+    if (pattern === 3) return "md:col-span-2 lg:col-span-2";
+    return "md:col-span-1 lg:col-span-1";
+  };
+
+  const getFlexClasses = (index) => {
+    const pattern = index % 4;
+    if (pattern === 3) return "flex-col lg:flex-row"; // Row layout only on large screens to prevent squishing text
+    return "flex-col";
+  };
+
+  const getImageClasses = (index) => {
+    const pattern = index % 4;
+    if (pattern === 3) return "w-full lg:w-1/2 h-64 lg:h-full border-b lg:border-b-0 lg:border-r border-white/5";
+    return "w-full h-64 border-b border-white/5";
+  };
+
+  const getContentClasses = (index) => {
+    const pattern = index % 4;
+    if (pattern === 3) return "w-full lg:w-1/2 p-6 lg:p-8 flex flex-col flex-grow justify-between";
+    return "p-6 flex flex-col flex-grow justify-between";
+  };
+
   return (
     <section
       id="projects"
-      className="min-h-screen flex items-center justify-center py-20"
+      className="min-h-screen flex items-center justify-center py-20 relative overflow-hidden"
     >
-      <RevealOnScroll>
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-4xl md:text-5xl font-bold mb-12 bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent text-center">
-            Projects...
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {projects.map((project, index) => (
-              <div
-                key={index}
-                className="group relative bg-gradient-to-br from-gray-900/50 to-gray-800/30 rounded-2xl border border-white/10 overflow-hidden hover:border-blue-500/50 transition-all duration-500 hover:shadow-[0_20px_60px_rgba(59,130,246,0.3)] hover:-translate-y-2 flex flex-col h-full"
-              >
-                {/* Image Container with Overlay - Fixed Height */}
-                <div className="relative h-48 overflow-hidden flex-shrink-0">
-                  <img
-                    src={project.image}
-                    alt={project.title}
-                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-                    loading="lazy"
-                  />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[150px] pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-400/10 rounded-full blur-[150px] pointer-events-none"></div>
 
-                  {/* Elegant Blurred Overlay on Hover */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 via-blue-800/70 to-cyan-900/80 opacity-0 group-hover:opacity-100 transition-all duration-500 backdrop-blur-md"></div>
-
-                  {/* Text Overlay that appears on hover */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-4 group-hover:translate-y-0 z-10">
-                    <div className="text-center px-4">
-                      <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-2xl">
-                        {project.title}
-                      </h3>
-                      <p className="text-sm text-blue-200 font-medium tracking-wide">View Details</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Content Section - Flexible Height */}
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-xl font-bold mb-3 text-white group-hover:text-blue-400 transition-colors duration-300">
-                    {project.title}
-                  </h3>
-                  <p className="text-gray-400 mb-4 text-sm leading-relaxed line-clamp-2 min-h-[2.5rem]">
-                    {project.description}
-                  </p>
-
-                  {/* Tech Stack - Fixed Height */}
-                  <div className="flex flex-wrap gap-2 mb-5 min-h-[3rem]">
-                    {project.tech.map((tech, techIndex) => (
-                      <span
-                        key={techIndex}
-                        className="bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full text-xs font-medium border border-blue-500/20 hover:bg-blue-500/20 hover:scale-105 hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all duration-300 h-fit"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Links - Push to Bottom */}
-                  <div className="flex items-center gap-4 pt-4 border-t border-white/10 mt-auto">
-                    <a
-                      href={project.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 text-center py-2.5 px-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg font-medium hover:from-blue-500 hover:to-blue-400 hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all duration-300 transform hover:scale-105"
-                    >
-                      GitHub →
-                    </a>
-                    {project.live && (
-                      <a
-                        href={project.live}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 text-center py-2.5 px-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg font-medium hover:from-blue-500 hover:to-blue-400 hover:shadow-[0_0_20px_rgba(59,130,246,0.5)] transition-all duration-300 transform hover:scale-105"
-                      >
-                        Live 👁
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+      <div className="max-w-7xl mx-auto px-4 relative z-10 w-full">
+        <RevealOnScroll>
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-extrabold mb-4 bg-gradient-to-r from-blue-300 via-blue-500 to-cyan-400 bg-clip-text text-transparent tracking-tight">
+              Featured Projects
+            </h2>
+            <div className="w-32 h-1 mx-auto bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full opacity-50 mb-4"></div>
+            <p className="text-gray-400 font-light max-w-xl mx-auto text-sm">
+              A selection of recent work focusing on modern UI, full-stack integration, and scalable architecture.
+            </p>
           </div>
+        </RevealOnScroll>
+
+        {/* Bento Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {visibleProjects.map((project, index) => {
+            const isHovered = hoveredIndex === index;
+            const isOtherHovered = hoveredIndex !== null && hoveredIndex !== index;
+
+            return (
+              <div key={index} className={getCardClasses(index)}>
+                <RevealOnScroll className="h-full">
+                  <div 
+                    onMouseEnter={() => setHoveredIndex(index)}
+                    onMouseLeave={() => setHoveredIndex(null)}
+                    className={`relative bg-zinc-900 rounded-2xl border border-white/5 overflow-hidden h-full flex w-full transition-all duration-500 ease-out ${getFlexClasses(index)} ${
+                      isHovered ? "scale-[1.02] border-blue-500/40 shadow-[0_20px_50px_rgba(59,130,246,0.15)] z-20" : "scale-100"
+                    } ${
+                      isOtherHovered ? "blur-[6px] opacity-40 grayscale-[40%] scale-[0.98]" : "opacity-100"
+                    }`}
+                  >
+                    
+                    {/* Image Container - Modified to perfectly fill the space aligned to the top */}
+                    <div className={`relative overflow-hidden flex-shrink-0 bg-zinc-900 ${getImageClasses(index)}`}>
+                      <img
+                        src={project.image}
+                        alt={project.title}
+                        className="w-full h-full object-cover object-top"
+                        loading="lazy"
+                      />
+                      {/* Subtle gradient to blend image into the card */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-60"></div>
+                    </div>
+
+                    {/* Content Section - Always Visible */}
+                    <div className={getContentClasses(index)}>
+                      <div>
+                        <h3 className={`text-2xl font-bold mb-3 transition-colors duration-300 ${isHovered ? "text-blue-400" : "text-white"}`}>
+                          {project.title}
+                        </h3>
+
+                        <p className="text-gray-300 mb-6 text-sm leading-relaxed">
+                          {project.description}
+                        </p>
+
+                        {/* Tech Stack Pills */}
+                        <div className="flex flex-wrap gap-2 mb-6">
+                          {project.tech.map((tech, techIndex) => (
+                            <span
+                              key={techIndex}
+                              className={`px-3 py-1 rounded text-xs border font-medium transition-colors duration-300 ${
+                                isHovered ? "bg-blue-500/10 border-blue-500/30 text-blue-300" : "bg-white/5 border-white/10 text-gray-300"
+                              }`}
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Action Buttons - Highly Visible */}
+                      <div className="flex items-center gap-3 mt-auto pt-6 border-t border-white/5">
+                        <a
+                          href={project.github}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-zinc-800 text-white rounded-xl text-sm font-semibold hover:bg-zinc-700 transition-colors border border-white/5"
+                        >
+                          <FaGithub size={16} />
+                          <span>GitHub</span>
+                        </a>
+                        {project.live && (
+                          <a
+                            href={project.live}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-500 transition-all border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]"
+                          >
+                            <FaExternalLinkAlt size={14} />
+                            <span>Live Preview</span>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+
+                  </div>
+                </RevealOnScroll>
+              </div>
+            );
+          })}
         </div>
-      </RevealOnScroll>
+
+        {/* Show More / Show Less Button */}
+        {projects.length > 6 && (
+          <RevealOnScroll>
+            <div className="mt-12 flex justify-center">
+              <button
+                onClick={() => setShowAll(!showAll)}
+                className="px-8 py-3 bg-white/5 border border-white/10 text-white rounded-full hover:bg-white/10 transition-all duration-300 font-medium text-sm hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(59,130,246,0.2)]"
+              >
+                {showAll ? "Show Less" : "Show More Projects"}
+              </button>
+            </div>
+          </RevealOnScroll>
+        )}
+      </div>
     </section>
   );
 };

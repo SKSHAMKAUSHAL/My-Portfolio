@@ -1,21 +1,35 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react";
 
-export const RevealOnScroll = ({children}) =>{
+export const RevealOnScroll = ({ children, className = "" }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef(null);
 
-    const ref = useRef(null);
-useEffect(()=>{
-    const observer = new IntersectionObserver((entry)=>{
-        if(entry.isIntersecting){
-            ref.current.classlist.add("visible");
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
         }
-    },
-{threshold:0.2 ,rootMargin: "0px 0px -50px 0px" }
-)
+      },
+      { threshold: 0.1, rootMargin: "0px 0px 50px 0px" }
+    );
 
-if(ref.current) observer.observe(ref.current);
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
 
-return () => observer.disconnect();
-})
+    return () => observer.disconnect();
+  }, []);
 
-    return <div ref={ref}>{children}</div>
-} 
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-1000 ease-out ${
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+      } ${className}`}
+    >
+      {children}
+    </div>
+  );
+};
