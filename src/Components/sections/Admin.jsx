@@ -54,7 +54,12 @@ export const Admin = () => {
   const [uploadingProj, setUploadingProj] = useState(false);
   const [uploadingPic, setUploadingPic] = useState(false);
 
-  // Forms
+  // Forms & Edit States
+  const [editingProject, setEditingProject] = useState(null);
+  const [draggedProjectIndex, setDraggedProjectIndex] = useState(null);
+  
+  const [editingJourney, setEditingJourney] = useState(null);
+
   const [newProject, setNewProject] = useState({ title: "", description: "", tech: "", github: "", live: "" });
   const [projImage, setProjImage] = useState(null);
   const [newJourney, setNewJourney] = useState({ title: "", description: "", icon: "🎓" });
@@ -63,11 +68,14 @@ export const Admin = () => {
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    // Fetch Projects
-    const qProjects = query(collection(db, "projects"), orderBy("createdAt", "desc"));
-    const unsubProjects = onSnapshot(qProjects, (snapshot) => {
-      const p = [];
+    // Fetch Projects (Sort in memory to support old projects without 'order' field)
+    const unsubProjects = onSnapshot(collection(db, "projects"), (snapshot) => {
+      let p = [];
       snapshot.forEach(doc => p.push({ id: doc.id, ...doc.data() }));
+      p.sort((a, b) => {
+        if (a.order !== undefined && b.order !== undefined) return a.order - b.order;
+        return (b.createdAt || 0) - (a.createdAt || 0); // fallback to newest first
+      });
       setProjects(p);
     });
 
@@ -106,27 +114,58 @@ export const Admin = () => {
 
   const handleAddProject = async (e) => {
     e.preventDefault();
-    if (!projImage) return alert("Please select an image for the project");
     setUploadingProj(true);
     try {
-      // Compress image to base64
-      const imageUrl = await compressImage(projImage);
+      let imageUrl = null;
+      if (projImage) {
+        imageUrl = await compressImage(projImage);
+      } else if (!editingProject) {
+        alert("Please select an image for the project");
+        setUploadingProj(false);
+        return;
+      }
 
-      await addDoc(collection(db, "projects"), {
-        ...newProject,
-        tech: newProject.tech.split(",").map(t => t.trim()),
-        image: imageUrl,
-        createdAt: new Date().getTime()
-      });
+      if (editingProject) {
+        // Update existing project
+        const updateData = {
+          ...newProject,
+          tech: newProject.tech.split(",").map(t => t.trim()),
+        };
+        if (imageUrl) updateData.image = imageUrl;
+        await updateDoc(doc(db, "projects", editingProject), updateData);
+        setEditingProject(null);
+      } else {
+        // Add new project
+        await addDoc(collection(db, "projects"), {
+          ...newProject,
+          tech: newProject.tech.split(",").map(t => t.trim()),
+          image: imageUrl,
+          order: projects.length, // Assign order at the end
+          createdAt: new Date().getTime()
+        });
+      }
 
       setNewProject({ title: "", description: "", tech: "", github: "", live: "" });
       setProjImage(null);
       e.target.reset(); // reset file input
     } catch (err) {
       console.error(err);
-      alert("Error adding project");
+      alert("Error saving project");
     }
     setUploadingProj(false);
+  };
+
+  const handleEditClick = (proj) => {
+    setEditingProject(proj.id);
+    setNewProject({
+      title: proj.title,
+      description: proj.description,
+      tech: proj.tech.join(", "),
+      github: proj.github,
+      live: proj.live || ""
+    });
+    setProjImage(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDeleteProject = async (id) => {
@@ -135,17 +174,62 @@ export const Admin = () => {
     }
   };
 
+  // Drag and Drop Handlers
+  const handleDragStart = (index) => {
+    setDraggedProjectIndex(index);
+  };
+
+  const handleDrop = async (e, index) => {
+    e.preventDefault();
+    if (draggedProjectIndex === null || draggedProjectIndex === index) return;
+    
+    const newProjects = [...projects];
+    const draggedItem = newProjects.splice(draggedProjectIndex, 1)[0];
+    newProjects.splice(index, 0, draggedItem);
+    
+    // Optimistically update UI
+    setProjects(newProjects);
+    setDraggedProjectIndex(null);
+    
+    // Save new order to Firebase
+    try {
+      for (let i = 0; i < newProjects.length; i++) {
+        if (newProjects[i].order !== i) {
+           await updateDoc(doc(db, "projects", newProjects[i].id), { order: i });
+        }
+      }
+    } catch(err) {
+      console.error("Error saving new order", err);
+    }
+  };
+
+  const handleEditJourneyClick = (j) => {
+    setEditingJourney(j.id);
+    setNewJourney({
+      title: j.title,
+      description: j.description,
+      icon: j.icon
+    });
+  };
+
   const handleAddJourney = async (e) => {
     e.preventDefault();
     try {
-      await addDoc(collection(db, "journeys"), {
-        ...newJourney,
-        createdAt: new Date().getTime()
-      });
+      if (editingJourney) {
+        await updateDoc(doc(db, "journeys", editingJourney), {
+          ...newJourney
+        });
+        setEditingJourney(null);
+      } else {
+        await addDoc(collection(db, "journeys"), {
+          ...newJourney,
+          createdAt: new Date().getTime()
+        });
+      }
       setNewJourney({ title: "", description: "", icon: "🎓" });
     } catch (err) {
       console.error(err);
-      alert("Error adding journey");
+      alert("Error saving journey");
     }
   };
 
@@ -155,23 +239,22 @@ export const Admin = () => {
     }
   };
 
+  const [newProfilePic, setNewProfilePic] = useState(null);
+
   const handleUpdateProfilePic = async (e) => {
     e.preventDefault();
     if (!newProfilePic) return alert("Please select an image");
     setUploadingPic(true);
     try {
-      // Compress image to base64
       const imageUrl = await compressImage(newProfilePic);
-
       try {
         await updateDoc(doc(db, "settings", "profile"), { proPicUrl: imageUrl });
-      } catch (e) {
+      } catch (err) {
         await setDoc(doc(db, "settings", "profile"), { proPicUrl: imageUrl });
       }
-      
+      alert("Profile picture updated!");
       setNewProfilePic(null);
       e.target.reset();
-      alert("Profile picture updated!");
     } catch (err) {
       console.error(err);
       alert("Error updating profile picture");
@@ -230,7 +313,15 @@ export const Admin = () => {
           
           {/* Projects Manager */}
           <section className="bg-zinc-900/40 p-6 md:p-8 rounded-3xl border border-white/5 shadow-lg">
-            <h2 className="text-2xl font-bold mb-6">Manage Projects</h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">Manage Projects</h2>
+              {editingProject && (
+                <button onClick={() => { setEditingProject(null); setNewProject({ title: "", description: "", tech: "", github: "", live: "" }); }} className="text-sm text-gray-400 hover:text-white">
+                  Cancel Edit
+                </button>
+              )}
+            </div>
+            
             <form onSubmit={handleAddProject} className="space-y-4 mb-8">
               <input type="text" placeholder="Project Title" value={newProject.title} onChange={e => setNewProject({...newProject, title: e.target.value})} className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2" required />
               <textarea placeholder="Description" value={newProject.description} onChange={e => setNewProject({...newProject, description: e.target.value})} className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2" rows="2" required />
@@ -238,26 +329,38 @@ export const Admin = () => {
               <input type="url" placeholder="GitHub URL" value={newProject.github} onChange={e => setNewProject({...newProject, github: e.target.value})} className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2" required />
               <input type="url" placeholder="Live Site URL (optional)" value={newProject.live} onChange={e => setNewProject({...newProject, live: e.target.value})} className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2" />
               <div className="flex flex-col gap-2">
-                <label className="text-sm text-gray-400">Project Image</label>
-                <input type="file" accept="image/*" onChange={e => setProjImage(e.target.files[0])} className="text-sm" required />
+                <label className="text-sm text-gray-400">{editingProject ? "Update Image (optional)" : "Project Image"}</label>
+                <input type="file" accept="image/*" onChange={e => setProjImage(e.target.files[0])} className="text-sm" required={!editingProject} />
               </div>
-              <button type="submit" disabled={uploadingProj} className="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 rounded-xl disabled:opacity-50">
-                {uploadingProj ? "Uploading Project..." : "+ Add Project"}
+              <button type="submit" disabled={uploadingProj} className={`w-full font-bold py-2 rounded-xl disabled:opacity-50 text-white transition-colors ${editingProject ? 'bg-orange-500 hover:bg-orange-400' : 'bg-blue-500 hover:bg-blue-400'}`}>
+                {uploadingProj ? "Saving..." : editingProject ? "Save Changes" : "+ Add Project"}
               </button>
             </form>
 
             <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+              <p className="text-xs text-gray-400 mb-2">Drag and drop to reorder projects</p>
               {projects.length === 0 ? <p className="text-gray-500 text-sm text-center italic">No projects yet.</p> : null}
-              {projects.map(proj => (
-                <div key={proj.id} className="bg-zinc-800/50 p-4 rounded-xl border border-white/5 flex justify-between items-center gap-4">
-                  <div className="flex items-center gap-3">
+              {projects.map((proj, index) => (
+                <div 
+                  key={proj.id} 
+                  draggable
+                  onDragStart={() => handleDragStart(index)}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => handleDrop(e, index)}
+                  className="bg-zinc-800/50 p-4 rounded-xl border border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 cursor-grab active:cursor-grabbing hover:bg-zinc-800 transition-colors"
+                >
+                  <div className="flex items-center gap-3 w-full">
+                    <span className="text-gray-500 text-lg cursor-grab">⋮⋮</span>
                     <img src={proj.image} className="w-12 h-12 rounded-lg object-cover" alt="proj" />
-                    <div>
+                    <div className="flex-1">
                       <h4 className="font-bold">{proj.title}</h4>
                       <p className="text-xs text-gray-400">{proj.tech?.join(", ")}</p>
                     </div>
                   </div>
-                  <button onClick={() => handleDeleteProject(proj.id)} className="text-red-400 hover:text-red-300 bg-red-500/10 px-3 py-1 rounded">Delete</button>
+                  <div className="flex gap-2">
+                    <button onClick={() => handleEditClick(proj)} className="text-orange-400 hover:text-orange-300 bg-orange-500/10 px-3 py-1 rounded text-sm whitespace-nowrap">Edit</button>
+                    <button onClick={() => handleDeleteProject(proj.id)} className="text-red-400 hover:text-red-300 bg-red-500/10 px-3 py-1 rounded text-sm whitespace-nowrap">Delete</button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -265,28 +368,38 @@ export const Admin = () => {
 
           {/* Journey Manager */}
           <section className="bg-zinc-900/40 p-6 md:p-8 rounded-3xl border border-white/5 shadow-lg">
-            <h2 className="text-2xl font-bold mb-6">Journey Timeline</h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold">Journey Timeline</h2>
+              {editingJourney && (
+                <button onClick={() => { setEditingJourney(null); setNewJourney({ title: "", description: "", icon: "🎓" }); }} className="text-sm text-gray-400 hover:text-white">
+                  Cancel Edit
+                </button>
+              )}
+            </div>
             <form onSubmit={handleAddJourney} className="space-y-4 mb-8">
               <input type="text" placeholder="Title (e.g. MERN Developer)" value={newJourney.title} onChange={e => setNewJourney({...newJourney, title: e.target.value})} className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2" required />
               <textarea placeholder="Description" value={newJourney.description} onChange={e => setNewJourney({...newJourney, description: e.target.value})} className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2" rows="3" required />
               <input type="text" placeholder="Icon Emoji (e.g. 🎓, 💻, 🚀)" value={newJourney.icon} onChange={e => setNewJourney({...newJourney, icon: e.target.value})} className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-2" required />
-              <button type="submit" className="w-full bg-cyan-500 hover:bg-cyan-400 text-white font-bold py-2 rounded-xl">
-                + Add Milestone
+              <button type="submit" className={`w-full font-bold py-2 rounded-xl text-white transition-colors ${editingJourney ? 'bg-orange-500 hover:bg-orange-400' : 'bg-cyan-500 hover:bg-cyan-400'}`}>
+                {editingJourney ? "Save Changes" : "+ Add Milestone"}
               </button>
             </form>
 
             <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
               {journeys.length === 0 ? <p className="text-gray-500 text-sm text-center italic">No milestones yet.</p> : null}
               {journeys.map(j => (
-                <div key={j.id} className="bg-zinc-800/50 p-4 rounded-xl border border-white/5 flex justify-between items-center gap-4">
-                  <div className="flex items-center gap-3">
+                <div key={j.id} className="bg-zinc-800/50 p-4 rounded-xl border border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4">
+                  <div className="flex items-center gap-3 w-full">
                     <span className="text-2xl">{j.icon}</span>
-                    <div>
+                    <div className="flex-1">
                       <h4 className="font-bold">{j.title}</h4>
                       <p className="text-xs text-gray-400 line-clamp-1">{j.description}</p>
                     </div>
                   </div>
-                  <button onClick={() => handleDeleteJourney(j.id)} className="text-red-400 hover:text-red-300 bg-red-500/10 px-3 py-1 rounded">Delete</button>
+                  <div className="flex gap-2">
+                    <button onClick={() => handleEditJourneyClick(j)} className="text-orange-400 hover:text-orange-300 bg-orange-500/10 px-3 py-1 rounded text-sm whitespace-nowrap">Edit</button>
+                    <button onClick={() => handleDeleteJourney(j.id)} className="text-red-400 hover:text-red-300 bg-red-500/10 px-3 py-1 rounded text-sm whitespace-nowrap">Delete</button>
+                  </div>
                 </div>
               ))}
             </div>

@@ -4,6 +4,27 @@ import { FaGithub, FaExternalLinkAlt } from "react-icons/fa";
 import { db } from "../../firebase";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 
+const ProjectDescription = ({ text }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const isLong = text && text.length > 120;
+  
+  return (
+    <div className="mb-6">
+      <div className={`text-gray-300 text-sm leading-relaxed whitespace-pre-wrap pr-1 ${isExpanded ? 'max-h-32 overflow-y-auto' : 'line-clamp-3'}`}>
+        {text}
+      </div>
+      {isLong && (
+        <button 
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="text-blue-400 text-xs font-bold mt-2 hover:text-blue-300 transition-colors"
+        >
+          {isExpanded ? "Show Less" : "Read More..."}
+        </button>
+      )}
+    </div>
+  );
+};
+
 export const Projects = () => {
   const [showAll, setShowAll] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -80,11 +101,15 @@ export const Projects = () => {
   useEffect(() => {
     if (!db) return;
     try {
-      const q = query(collection(db, "projects"), orderBy("createdAt", "desc"));
+      const q = query(collection(db, "projects"));
       const unsub = onSnapshot(q, (snapshot) => {
         if (!snapshot.empty) {
           const p = [];
           snapshot.forEach(doc => p.push({ id: doc.id, ...doc.data() }));
+          p.sort((a, b) => {
+            if (a.order !== undefined && b.order !== undefined) return a.order - b.order;
+            return (b.createdAt || 0) - (a.createdAt || 0);
+          });
           setProjects(p);
         }
       });
@@ -95,34 +120,6 @@ export const Projects = () => {
   }, []);
 
   const visibleProjects = showAll ? projects : projects.slice(0, 6);
-
-  // Helper functions for Bento Grid layout
-  const getCardClasses = (index) => {
-    const pattern = index % 4;
-    if (pattern === 0) return "md:col-span-2 lg:col-span-2";
-    if (pattern === 1) return "md:col-span-1 lg:col-span-1";
-    if (pattern === 2) return "md:col-span-1 lg:col-span-1";
-    if (pattern === 3) return "md:col-span-2 lg:col-span-2";
-    return "md:col-span-1 lg:col-span-1";
-  };
-
-  const getFlexClasses = (index) => {
-    const pattern = index % 4;
-    if (pattern === 3) return "flex-col lg:flex-row"; // Row layout only on large screens to prevent squishing text
-    return "flex-col";
-  };
-
-  const getImageClasses = (index) => {
-    const pattern = index % 4;
-    if (pattern === 3) return "w-full lg:w-1/2 h-64 lg:h-full border-b lg:border-b-0 lg:border-r border-white/5";
-    return "w-full h-64 border-b border-white/5";
-  };
-
-  const getContentClasses = (index) => {
-    const pattern = index % 4;
-    if (pattern === 3) return "w-full lg:w-1/2 p-6 lg:p-8 flex flex-col flex-grow justify-between";
-    return "p-6 flex flex-col flex-grow justify-between";
-  };
 
   return (
     <section
@@ -145,47 +142,44 @@ export const Projects = () => {
           </div>
         </RevealOnScroll>
 
-        {/* Bento Grid */}
+        {/* Standard Uniform Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {visibleProjects.map((project, index) => {
             const isHovered = hoveredIndex === index;
             const isOtherHovered = hoveredIndex !== null && hoveredIndex !== index;
 
             return (
-              <div key={index} className={getCardClasses(index)}>
+              <div key={index} className="flex flex-col h-full">
                 <RevealOnScroll className="h-full">
                   <div 
                     onMouseEnter={() => setHoveredIndex(index)}
                     onMouseLeave={() => setHoveredIndex(null)}
-                    className={`relative bg-zinc-900 rounded-2xl border border-white/5 overflow-hidden h-full flex w-full transition-all duration-500 ease-out ${getFlexClasses(index)} ${
+                    className={`relative bg-zinc-900 rounded-2xl border border-white/5 overflow-hidden h-full flex flex-col w-full transition-all duration-500 ease-out ${
                       isHovered ? "scale-[1.02] border-blue-500/40 shadow-[0_20px_50px_rgba(59,130,246,0.15)] z-20" : "scale-100"
                     } ${
                       isOtherHovered ? "blur-[6px] opacity-40 grayscale-[40%] scale-[0.98]" : "opacity-100"
                     }`}
                   >
                     
-                    {/* Image Container - Modified to perfectly fill the space aligned to the top */}
-                    <div className={`relative overflow-hidden flex-shrink-0 bg-zinc-900 ${getImageClasses(index)}`}>
+                    {/* Image Container */}
+                    <div className="relative overflow-hidden flex-shrink-0 bg-zinc-900 w-full h-56 border-b border-white/5">
                       <img
                         src={project.image}
                         alt={project.title}
                         className="w-full h-full object-cover object-top"
                         loading="lazy"
                       />
-                      {/* Subtle gradient to blend image into the card */}
                       <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-60"></div>
                     </div>
 
-                    {/* Content Section - Always Visible */}
-                    <div className={getContentClasses(index)}>
+                    {/* Content Section */}
+                    <div className="p-6 flex flex-col flex-grow justify-between">
                       <div>
-                        <h3 className={`text-2xl font-bold mb-3 transition-colors duration-300 ${isHovered ? "text-blue-400" : "text-white"}`}>
+                        <h3 className={`text-xl font-bold mb-3 transition-colors duration-300 ${isHovered ? "text-blue-400" : "text-white"}`}>
                           {project.title}
                         </h3>
 
-                        <p className="text-gray-300 mb-6 text-sm leading-relaxed">
-                          {project.description}
-                        </p>
+                        <ProjectDescription text={project.description} />
 
                         {/* Tech Stack Pills */}
                         <div className="flex flex-wrap gap-2 mb-6">
@@ -202,7 +196,7 @@ export const Projects = () => {
                         </div>
                       </div>
 
-                      {/* Action Buttons - Highly Visible */}
+                      {/* Action Buttons */}
                       <div className="flex items-center gap-3 mt-auto pt-6 border-t border-white/5">
                         <a
                           href={project.github}
