@@ -30,12 +30,21 @@ export const Home = () => {
     >
       <RevealOnScroll>
         <div className="z-10 px-4">
-          {/* Profile Picture */}
-          <div className="mb-6">
+          {/* Epic Animated Profile Picture */}
+          <div className="relative mb-12 flex justify-center items-center">
+            {/* Glowing blue sunrise / energy core behind the image */}
+            <div className="absolute w-40 h-40 md:w-48 md:h-48 bg-blue-600 rounded-full blur-[50px] opacity-60 animate-pulse"></div>
+            <div className="absolute w-48 h-48 md:w-56 md:h-56 bg-cyan-400 rounded-full blur-[80px] opacity-30 animate-pulse" style={{ animationDelay: '1s' }}></div>
+            
+            {/* "Thunder / Damaged" spinning energy rings */}
+            <div className="absolute w-44 h-44 md:w-52 md:h-52 rounded-full border-2 border-blue-400/20 border-dashed animate-[spin_12s_linear_infinite]"></div>
+            <div className="absolute w-48 h-48 md:w-56 md:h-56 rounded-full border-t-2 border-r-2 border-cyan-300/40 animate-[spin_8s_linear_infinite_reverse]"></div>
+            <div className="absolute w-52 h-52 md:w-60 md:h-60 rounded-full border border-blue-500/10 animate-[ping_3s_ease-in-out_infinite]"></div>
+            
             <img
               src={proPic}
               alt="Sksham Kaushal"
-              className="w-40 h-40 md:w-48 md:h-48 rounded-full mx-auto object-cover border-4 border-blue-500/50 shadow-lg transition-transform duration-300 hover:scale-105"
+              className="relative z-10 w-40 h-40 md:w-48 md:h-48 rounded-full object-cover border-4 border-zinc-900 shadow-[0_0_30px_rgba(59,130,246,0.6)] transition-all duration-500 hover:scale-110 hover:shadow-[0_0_60px_rgba(34,211,238,0.8)]"
             />
           </div>
 

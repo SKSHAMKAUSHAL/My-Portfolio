@@ -145,20 +145,14 @@ export const Projects = () => {
         {/* Standard Uniform Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {visibleProjects.map((project, index) => {
-            const isHovered = hoveredIndex === index;
-            const isOtherHovered = hoveredIndex !== null && hoveredIndex !== index;
-
             return (
-              <div key={index} className="flex flex-col h-full">
-                <RevealOnScroll className="h-full">
+              <div key={index} className="flex flex-col h-full relative group">
+                {/* Blue fogging light effect behind the card */}
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-500 rounded-2xl blur-xl opacity-0 group-hover:opacity-60 transition duration-500"></div>
+
+                <RevealOnScroll className="h-full relative z-10">
                   <div 
-                    onMouseEnter={() => setHoveredIndex(index)}
-                    onMouseLeave={() => setHoveredIndex(null)}
-                    className={`relative bg-zinc-900 rounded-2xl border border-white/5 overflow-hidden h-full flex flex-col w-full transition-all duration-500 ease-out ${
-                      isHovered ? "scale-[1.02] border-blue-500/40 shadow-[0_20px_50px_rgba(59,130,246,0.15)] z-20" : "scale-100"
-                    } ${
-                      isOtherHovered ? "blur-[6px] opacity-40 grayscale-[40%] scale-[0.98]" : "opacity-100"
-                    }`}
+                    className="bg-zinc-900 rounded-2xl border border-white/5 overflow-hidden h-full flex flex-col w-full transition-all duration-500 ease-out group-hover:scale-[1.02] group-hover:border-blue-500/40"
                   >
                     
                     {/* Image Container */}
@@ -175,7 +169,7 @@ export const Projects = () => {
                     {/* Content Section */}
                     <div className="p-6 flex flex-col flex-grow justify-between">
                       <div>
-                        <h3 className={`text-xl font-bold mb-3 transition-colors duration-300 ${isHovered ? "text-blue-400" : "text-white"}`}>
+                        <h3 className="text-xl font-bold mb-3 transition-colors duration-300 text-white group-hover:text-blue-400">
                           {project.title}
                         </h3>
 
@@ -186,9 +180,7 @@ export const Projects = () => {
                           {project.tech.map((tech, techIndex) => (
                             <span
                               key={techIndex}
-                              className={`px-3 py-1 rounded text-xs border font-medium transition-colors duration-300 ${
-                                isHovered ? "bg-blue-500/10 border-blue-500/30 text-blue-300" : "bg-white/5 border-white/10 text-gray-300"
-                              }`}
+                              className="px-3 py-1 rounded text-xs border font-medium transition-colors duration-300 bg-white/5 border-white/10 text-gray-300 group-hover:bg-blue-500/10 group-hover:border-blue-500/30 group-hover:text-blue-300"
                             >
                               {tech}
                             </span>

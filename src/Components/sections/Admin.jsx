@@ -1,8 +1,37 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { loginWithSecret, db } from "../../firebase";
 import { collection, addDoc, deleteDoc, doc, updateDoc, setDoc, onSnapshot, query, orderBy } from "firebase/firestore";
+import Cropper from 'react-easy-crop';
 
-// Helper function to compress image and convert to Base64
+// Helper to crop image and return base64
+const getCroppedImg = (imageSrc, pixelCrop) => {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.src = imageSrc;
+    image.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 800; // Force 800x800 for high quality profile pic
+      canvas.height = 800;
+      const ctx = canvas.getContext("2d");
+      
+      ctx.drawImage(
+        image,
+        pixelCrop.x,
+        pixelCrop.y,
+        pixelCrop.width,
+        pixelCrop.height,
+        0,
+        0,
+        800,
+        800
+      );
+      resolve(canvas.toDataURL("image/jpeg", 0.8));
+    };
+    image.onerror = (error) => reject(error);
+  });
+};
+
+// Helper function to compress image and convert to Base64 (used for projects)
 const compressImage = (file) => {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -12,7 +41,7 @@ const compressImage = (file) => {
       img.src = event.target.result;
       img.onload = () => {
         const canvas = document.createElement("canvas");
-        const MAX_WIDTH = 800; // max width for portfolio images
+        const MAX_WIDTH = 800;
         const MAX_HEIGHT = 800;
         let width = img.width;
         let height = img.height;
@@ -33,7 +62,6 @@ const compressImage = (file) => {
         const ctx = canvas.getContext("2d");
         ctx.drawImage(img, 0, 0, width, height);
         
-        // Output as WebP or JPEG for good compression
         resolve(canvas.toDataURL("image/jpeg", 0.7)); 
       };
     };
@@ -239,22 +267,37 @@ export const Admin = () => {
     }
   };
 
-  const [newProfilePic, setNewProfilePic] = useState(null);
+  const [cropImageSrc, setCropImageSrc] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
-  const handleUpdateProfilePic = async (e) => {
-    e.preventDefault();
-    if (!newProfilePic) return alert("Please select an image");
+  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  const onFileChange = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.addEventListener("load", () => setCropImageSrc(reader.result));
+      reader.readAsDataURL(file);
+      e.target.value = null; // reset input
+    }
+  };
+
+  const handleSaveCrop = async () => {
+    if (!cropImageSrc || !croppedAreaPixels) return;
     setUploadingPic(true);
     try {
-      const imageUrl = await compressImage(newProfilePic);
+      const croppedImageBase64 = await getCroppedImg(cropImageSrc, croppedAreaPixels);
       try {
-        await updateDoc(doc(db, "settings", "profile"), { proPicUrl: imageUrl });
+        await updateDoc(doc(db, "settings", "profile"), { proPicUrl: croppedImageBase64 });
       } catch (err) {
-        await setDoc(doc(db, "settings", "profile"), { proPicUrl: imageUrl });
+        await setDoc(doc(db, "settings", "profile"), { proPicUrl: croppedImageBase64 });
       }
       alert("Profile picture updated!");
-      setNewProfilePic(null);
-      e.target.reset();
+      setCropImageSrc(null);
     } catch (err) {
       console.error(err);
       alert("Error updating profile picture");
@@ -294,19 +337,78 @@ export const Admin = () => {
         {/* Profile Settings */}
         <section className="bg-zinc-900/40 p-6 md:p-8 rounded-3xl border border-white/5 shadow-lg">
           <h2 className="text-2xl font-bold mb-4">Profile Settings</h2>
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            {profilePic ? (
-              <img src={profilePic} alt="Profile" className="w-24 h-24 rounded-full object-cover border border-white/20" />
-            ) : (
-              <div className="w-24 h-24 rounded-full bg-zinc-800 flex items-center justify-center border border-dashed border-white/20 text-xs text-gray-500">No Image</div>
-            )}
-            <form onSubmit={handleUpdateProfilePic} className="flex-1 w-full flex flex-col sm:flex-row gap-4">
-              <input type="file" accept="image/*" onChange={(e) => setNewProfilePic(e.target.files[0])} className="text-sm flex-1 bg-zinc-950 border border-white/10 rounded-xl p-2" required />
-              <button type="submit" disabled={uploadingPic} className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded-xl disabled:opacity-50 whitespace-nowrap">
-                {uploadingPic ? "Uploading..." : "Update Picture"}
-              </button>
-            </form>
-          </div>
+          
+          {cropImageSrc ? (
+            <div className="flex flex-col items-center gap-6">
+              <div className="relative w-full max-w-sm h-80 bg-black rounded-xl overflow-hidden border border-white/20">
+                <Cropper
+                  image={cropImageSrc}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1}
+                  cropShape="round"
+                  showGrid={false}
+                  onCropChange={setCrop}
+                  onCropComplete={onCropComplete}
+                  onZoomChange={setZoom}
+                />
+              </div>
+              
+              <div className="w-full max-w-sm px-4">
+                <p className="text-xs text-gray-400 mb-2 text-center">Zoom</p>
+                <input 
+                  type="range" 
+                  value={zoom} 
+                  min={1} 
+                  max={3} 
+                  step={0.1} 
+                  onChange={(e) => setZoom(e.target.value)} 
+                  className="w-full accent-blue-500 h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer"
+                />
+              </div>
+
+              <div className="flex w-full max-w-sm gap-4 mt-2">
+                <button 
+                  onClick={handleSaveCrop} 
+                  disabled={uploadingPic} 
+                  className="flex-1 bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-6 rounded-xl disabled:opacity-50 transition-colors"
+                >
+                  {uploadingPic ? "Saving..." : "Set new profile picture"}
+                </button>
+                <button 
+                  onClick={() => setCropImageSrc(null)} 
+                  disabled={uploadingPic} 
+                  className="flex-1 bg-zinc-700 hover:bg-zinc-600 text-white font-bold py-3 px-6 rounded-xl disabled:opacity-50 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              {profilePic ? (
+                <img src={profilePic} alt="Profile" className="w-24 h-24 rounded-full object-cover border border-white/20 shadow-lg" />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-zinc-800 flex items-center justify-center border border-dashed border-white/20 text-xs text-gray-500">No Image</div>
+              )}
+              <div className="flex-1 w-full">
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  id="proPicInput"
+                  className="hidden"
+                  onChange={onFileChange} 
+                />
+                <label 
+                  htmlFor="proPicInput" 
+                  className="inline-block cursor-pointer bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded-xl transition-colors shadow-lg"
+                >
+                  Choose New Picture
+                </label>
+                <p className="text-xs text-gray-400 mt-2">You will be able to crop the image before saving.</p>
+              </div>
+            </div>
+          )}
         </section>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
