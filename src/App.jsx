@@ -9,6 +9,7 @@ import { About } from "./Components/sections/About";
 import { Projects } from "./Components/sections/Projects";
 import { Contact } from "./Components/sections/Contact";
 import { Admin } from "./Components/sections/Admin";
+import { NotFound } from "./Components/NotFound";
 
 const MainPortfolio = ({ isLoaded, setIsLoaded, menuOpen, setMenuOpen }) => {
   return (
@@ -41,6 +42,7 @@ function App() {
       <Routes>
         <Route path="/" element={<MainPortfolio isLoaded={isLoaded} setIsLoaded={setIsLoaded} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );
