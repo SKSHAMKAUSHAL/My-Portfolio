@@ -143,28 +143,43 @@ export const About = () => {
           </div>
 
           {/* Roadmap Journey */}
-          <div className="mt-24 mb-10">
-            <h3 className="text-3xl font-bold mb-16 text-center text-white bg-gradient-to-r from-blue-300 to-cyan-400 bg-clip-text text-transparent">
+          <div className="mt-32 mb-10">
+            <h3 className="text-3xl md:text-4xl font-bold mb-16 text-center text-white bg-gradient-to-r from-blue-300 to-cyan-400 bg-clip-text text-transparent tracking-wide">
               My Journey
             </h3>
-            <div className="relative max-w-3xl mx-auto">
-              {/* Vertical Line */}
-              <div className="absolute left-6 md:left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 via-cyan-400 to-blue-500 -translate-x-1/2 rounded-full opacity-30"></div>
+            <div className="relative max-w-4xl mx-auto px-4 md:px-0">
+              {/* Thin Vertical Line */}
+              <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-[2px] bg-gradient-to-b from-transparent via-blue-500/40 to-transparent -translate-x-1/2"></div>
 
-              <div className="space-y-16">
+              <div className="space-y-12">
                 {journeyItems.map((item, index) => (
                   <div key={index} className={`relative flex flex-col md:flex-row items-center ${index % 2 === 0 ? "md:flex-row-reverse" : ""} group`}>
                     
-                    {/* Timeline Dot */}
-                    <div className="absolute left-6 md:left-1/2 w-12 h-12 rounded-full bg-zinc-950 border-4 border-blue-500 -translate-x-1/2 flex items-center justify-center z-10 group-hover:scale-110 group-hover:border-cyan-400 transition-all duration-300 shadow-[0_0_20px_rgba(59,130,246,0.4)] group-hover:shadow-[0_0_30px_rgba(34,211,238,0.6)]">
-                      <span className="text-xl">{item.icon}</span>
-                    </div>
+                    {/* Glowing Sharp Dot */}
+                    <div className="absolute left-8 md:left-1/2 w-3 h-3 rounded-full bg-blue-500 -translate-x-1/2 z-10 group-hover:scale-[2] group-hover:bg-cyan-400 transition-all duration-500 shadow-[0_0_10px_rgba(59,130,246,0.8)] group-hover:shadow-[0_0_20px_rgba(34,211,238,1)]"></div>
+
+                    {/* Connecting Line (Desktop) */}
+                    <div className={`hidden md:block absolute top-1/2 -translate-y-1/2 h-[2px] w-12 bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-all duration-500 z-0 ${
+                      index % 2 === 0
+                        ? "left-1/2 from-blue-500/80 to-transparent"
+                        : "right-1/2 from-transparent to-blue-500/80"
+                    }`}></div>
 
                     {/* Content Box */}
-                    <div className={`ml-16 md:ml-0 md:w-1/2 ${index % 2 === 0 ? "md:pl-16" : "md:pr-16"} w-full`}>
-                      <div className="bg-zinc-900/40 backdrop-blur-xl p-8 rounded-3xl border border-white/5 group-hover:border-blue-500/30 group-hover:shadow-[0_16px_40px_rgba(59,130,246,0.1)] transition-all duration-500 group-hover:-translate-y-2 group-hover:bg-zinc-800/50">
-                        <h4 className="text-2xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">{item.title}</h4>
-                        <p className="text-gray-400 text-base leading-relaxed font-light">{item.description}</p>
+                    <div className={`ml-20 md:ml-0 md:w-1/2 ${index % 2 === 0 ? "md:pl-12" : "md:pr-12"} w-[calc(100%-5rem)]`}>
+                      <div className="relative bg-zinc-900/30 backdrop-blur-md p-6 rounded-2xl border border-white/5 overflow-hidden group-hover:border-blue-500/40 transition-all duration-500 group-hover:-translate-y-1 group-hover:shadow-[0_10px_40px_rgba(59,130,246,0.15)]">
+                        {/* Hover Gradient Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                        
+                        <div className="relative z-10 flex flex-col sm:flex-row items-start gap-4">
+                          <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-zinc-800/50 flex items-center justify-center text-2xl grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500 group-hover:scale-110 group-hover:bg-blue-500/20 border border-white/5 group-hover:border-blue-500/30">
+                            {item.icon}
+                          </div>
+                          <div>
+                            <h4 className="text-xl font-bold text-gray-200 mb-2 group-hover:text-blue-400 transition-colors tracking-tight">{item.title}</h4>
+                            <p className="text-gray-400 text-sm leading-relaxed font-light">{item.description}</p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>

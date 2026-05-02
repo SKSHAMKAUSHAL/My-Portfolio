@@ -30,10 +30,16 @@ export { app, db, storage };
 export const loginWithSecret = async (secretKey) => {
   // Vite sometimes keeps quotes from .env, so we remove them if they exist
   let correctSecret = import.meta.env.VITE_ADMIN_SECRET_KEY || "";
-  correctSecret = correctSecret.replace(/^"|"$/g, ''); 
+  correctSecret = correctSecret.replace(/^["']|["']$/g, '').trim(); 
   
-  if (secretKey === correctSecret) {
+  // Normalize smart quotes to standard straight quotes
+  const normalizedInput = secretKey.trim().replace(/['`’‘]/g, "'");
+  const normalizedSecret = correctSecret.replace(/['`’‘]/g, "'");
+  
+  if (normalizedInput === normalizedSecret) {
     return true;
   }
+  
+  console.log("Login Failed. (If you just updated .env, you MUST restart your terminal server and refresh the browser!)");
   return false;
 };

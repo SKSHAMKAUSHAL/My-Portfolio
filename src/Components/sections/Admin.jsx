@@ -308,14 +308,23 @@ export const Admin = () => {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] text-white">
-        <form onSubmit={handleLogin} className="bg-zinc-900/50 p-8 rounded-2xl border border-white/5 shadow-[0_0_40px_rgba(59,130,246,0.1)] max-w-md w-full">
+        <form onSubmit={handleLogin} autoComplete="off" className="bg-zinc-900/50 p-8 rounded-2xl border border-white/5 shadow-[0_0_40px_rgba(59,130,246,0.1)] max-w-md w-full">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-extrabold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Admin Access</h2>
             <p className="text-gray-400 mt-2 text-sm">Enter your secret key to manage your portfolio</p>
           </div>
           {error && <div className="bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-2 rounded-lg mb-6 text-center text-sm">{error}</div>}
           <div className="mb-6">
-            <input type="password" placeholder="Secret Key" value={secretKey} onChange={(e) => setSecretKey(e.target.value)} className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500" required />
+            <input 
+              type="password" 
+              name="admin_secret_key_random"
+              autoComplete="new-password"
+              placeholder="Secret Key" 
+              value={secretKey} 
+              onChange={(e) => setSecretKey(e.target.value)} 
+              className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500" 
+              required 
+            />
           </div>
           <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)]">Unlock Dashboard</button>
         </form>
