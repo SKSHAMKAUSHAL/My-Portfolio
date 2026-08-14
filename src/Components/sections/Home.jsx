@@ -68,7 +68,7 @@ export const Home = () => {
             </a>
 
             <a
-              href="https://docs.google.com/document/d/1pbIXoxfexCJ_l1Ro8eUWYgo7GUCJ7dHMJzy1XTuwNhw/edit?usp=sharing"
+              href="https://docs.google.com/document/d/1fTzYBcvm5tp4BRcE8Xv2UzoedSt3p3f_xYED6cM1nxk/edit?usp=sharing"
               download
               className="flex items-center gap-2 border border-blue-500/50 text-blue-500 py-3 px-6 rounded-md font-medium transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/20 hover:bg-blue-500/10"
             >

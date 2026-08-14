@@ -40,10 +40,23 @@ export const Contact = () => {
   return (
     <section
       id="contact"
-      className="min-h-screen flex items-center justify-center py-20"
+      className="min-h-screen flex items-center justify-center lg:justify-end py-20 relative overflow-hidden px-4 lg:px-32 bg-black"
     >
+      {/* Background Image with Dark Glass Overlay */}
+      <div 
+        className="absolute inset-0 z-0 bg-[length:auto_100%] md:bg-cover bg-left bg-no-repeat transition-opacity duration-1000"
+        style={{ backgroundImage: "url(/bg-left.png)" }}
+      >
+        {/* Gradient overlay: clear on left (for picture), dark on right (behind form) */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-black/50 to-black/90"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/90"></div>
+      </div>
+
+      {/* Glowing light around the person on the left */}
+      <div className="absolute top-1/2 left-0 md:left-24 -translate-y-1/2 w-[300px] md:w-[400px] h-[500px] bg-blue-500/20 md:bg-cyan-400/20 rounded-full blur-[100px] pointer-events-none z-0 mix-blend-screen"></div>
+
       <RevealOnScroll>
-        <div className="px-4 w-full min-w-[300px] md:w-[500px] sm:w-2/3 p-6">
+        <div className="relative z-10 px-4 w-full min-w-[300px] md:w-[500px] sm:w-2/3 p-8 bg-black/40 backdrop-blur-lg rounded-3xl border border-white/10 shadow-[0_10px_40px_rgba(59,130,246,0.1)]">
           <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-transparent text-center">
             Get In Touch
           </h2>

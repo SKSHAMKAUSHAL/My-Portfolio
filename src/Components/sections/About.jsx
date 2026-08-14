@@ -1,13 +1,16 @@
 import { RevealOnScroll } from "./RevealOnScroll";
-import { FaCode, FaServer, FaTools } from "react-icons/fa";
+import { FaCode, FaServer, FaTools, FaDatabase, FaRobot, FaLaptopCode } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { db } from "../../firebase";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 
 export const About = () => {
-  const frontendSkills = ["React", "HTML", "CSS", "TailwindCSS", "JavaScript"];
-  const backendSkills = ["Node.js", "Java", "MongoDB", "Express.js"];
-  const tools = ["Git", "GitHub", "VS Code", "Postman", "Netlify"];
+  const frontendSkills = ["HTML", "CSS", "JavaScript", "React.js", "Vite", "Tailwind CSS", "Framer Motion"];
+  const backendSkills = ["Node.js", "Express.js", "Firebase", "REST APIs", "JWT Authentication", "OAuth 2.0", "Socket.io", "Razorpay."];
+  const tools = ["Git", "Docker", "Postman", "Vercel", "Netlify", "Render", "FFmpeg", "yt-dlp"];
+  const Databases=["MongoDB","MySQL","PostgreSQL","Supabase","Firestore "];
+  const AiTools =["Groq SDK", "Google Gemini API", "Hugging Face", "Ollama", "LLM Prompt Engineering"];
+  const Languages =["Java (Advanced)", "Python (Intermediate)", "C++ (Intermediate)", "JavaScript (Intermediate)"];
   const [hoveredSkill, setHoveredSkill] = useState(null);
 
   const defaultJourneyItems = [
@@ -55,11 +58,11 @@ export const About = () => {
   return (
     <section
       id="about"
-      className="min-h-screen flex items-center justify-center py-20 relative overflow-hidden"
+      className="min-h-screen flex items-center justify-center py-20 relative overflow-hidden bg-black"
     >
       {/* Subtle Background Glows */}
-      <div className="absolute top-1/4 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-cyan-400/10 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="absolute top-1/4 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
+      <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-cyan-400/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
 
       <RevealOnScroll>
         <div className="max-w-5xl mx-auto px-4 relative z-10">
@@ -70,20 +73,20 @@ export const About = () => {
             <div className="w-24 h-1 mx-auto bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full opacity-50"></div>
           </div>
 
-          <div className="bg-zinc-900/40 backdrop-blur-xl rounded-3xl p-8 md:p-12 border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:shadow-[0_16px_48px_rgba(59,130,246,0.05)] transition-all duration-500">
-            <p className="text-gray-300 mb-12 text-center text-lg md:text-xl leading-relaxed font-light">
+          <div className="mb-16">
+            <p className="text-gray-100 mb-16 text-center text-lg md:text-xl leading-relaxed font-light drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] max-w-4xl mx-auto">
               Passionate full-stack developer with a strong focus on building
-              <span className="text-blue-400 font-medium"> user-friendly</span>,
-              <span className="text-blue-400 font-medium"> scalable</span>, and
-              <span className="text-blue-400 font-medium"> performance-driven</span> applications.
+              <span className="text-blue-400 font-semibold drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]"> user-friendly</span>,
+              <span className="text-cyan-400 font-semibold drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]"> scalable</span>, and
+              <span className="text-blue-400 font-semibold drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]"> performance-driven</span> applications.
             </p>
 
             {/* Skills Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-center">
               {/* Frontend */}
-              <div className="bg-zinc-950/50 rounded-2xl p-8 border border-white/5 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(59,130,246,0.1)] hover:border-blue-500/20 transition-all duration-500 group">
-                <h3 className="text-xl font-bold mb-6 flex justify-center items-center gap-3 text-white group-hover:text-blue-400 transition-colors">
-                  <FaCode className="text-blue-500 group-hover:rotate-12 transition-transform duration-500" /> Frontend
+              <div className="bg-black/40 backdrop-blur-lg rounded-2xl p-8 border border-white/10 hover:-translate-y-2 hover:shadow-[0_10px_40px_rgba(59,130,246,0.3)] hover:border-blue-500/50 transition-all duration-300 group will-change-transform">
+                <h3 className="text-2xl font-bold mb-6 flex justify-center items-center gap-3 text-white group-hover:text-blue-400 transition-colors drop-shadow-md">
+                  <FaCode className="text-blue-500 group-hover:rotate-12 transition-transform duration-500 text-3xl" /> Frontend
                 </h3>
                 <div className="flex flex-wrap justify-center gap-3">
                   {frontendSkills.map((tech, key) => (
@@ -91,8 +94,7 @@ export const About = () => {
                       key={key}
                       onMouseEnter={() => setHoveredSkill(tech)}
                       onMouseLeave={() => setHoveredSkill(null)}
-                      className={`bg-zinc-800 text-gray-300 py-1.5 px-4 rounded-full text-sm border border-white/5 hover:bg-gradient-to-r hover:from-blue-500 hover:to-cyan-500 hover:text-white hover:border-transparent hover:scale-110 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all duration-300 cursor-pointer ${hoveredSkill === tech ? "ring-2 ring-blue-400/50" : ""
-                        }`}
+                      className={`bg-zinc-800 text-gray-300 py-1.5 px-4 rounded-full text-sm border border-white/5 hover:bg-gradient-to-r hover:from-blue-500 hover:to-cyan-500 hover:text-white hover:border-transparent hover:scale-105 hover:shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all duration-200 cursor-pointer ${hoveredSkill === tech ? "ring-2 ring-blue-400/50" : ""}`}
                     >
                       {tech}
                     </span>
@@ -101,9 +103,9 @@ export const About = () => {
               </div>
 
               {/* Backend */}
-              <div className="bg-zinc-950/50 rounded-2xl p-8 border border-white/5 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(59,130,246,0.1)] hover:border-blue-500/20 transition-all duration-500 group">
-                <h3 className="text-xl font-bold mb-6 flex justify-center items-center gap-3 text-white group-hover:text-blue-400 transition-colors">
-                  <FaServer className="text-blue-500 group-hover:rotate-12 transition-transform duration-500" /> Backend
+              <div className="bg-black/40 backdrop-blur-lg rounded-2xl p-8 border border-white/10 hover:-translate-y-2 hover:shadow-[0_10px_40px_rgba(59,130,246,0.3)] hover:border-blue-500/50 transition-all duration-300 group will-change-transform">
+                <h3 className="text-2xl font-bold mb-6 flex justify-center items-center gap-3 text-white group-hover:text-blue-400 transition-colors drop-shadow-md">
+                  <FaServer className="text-blue-500 group-hover:rotate-12 transition-transform duration-500 text-3xl" /> Backend
                 </h3>
                 <div className="flex flex-wrap justify-center gap-3">
                   {backendSkills.map((tech, key) => (
@@ -111,8 +113,64 @@ export const About = () => {
                       key={key}
                       onMouseEnter={() => setHoveredSkill(tech)}
                       onMouseLeave={() => setHoveredSkill(null)}
-                      className={`bg-zinc-800 text-gray-300 py-1.5 px-4 rounded-full text-sm border border-white/5 hover:bg-gradient-to-r hover:from-blue-500 hover:to-cyan-500 hover:text-white hover:border-transparent hover:scale-110 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all duration-300 cursor-pointer ${hoveredSkill === tech ? "ring-2 ring-blue-400/50" : ""
-                        }`}
+                      className={`bg-zinc-800 text-gray-300 py-1.5 px-4 rounded-full text-sm border border-white/5 hover:bg-gradient-to-r hover:from-blue-500 hover:to-cyan-500 hover:text-white hover:border-transparent hover:scale-105 hover:shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all duration-200 cursor-pointer ${hoveredSkill === tech ? "ring-2 ring-blue-400/50" : ""}`}
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Databases */}
+              <div className="bg-black/40 backdrop-blur-lg rounded-2xl p-8 border border-white/10 hover:-translate-y-2 hover:shadow-[0_10px_40px_rgba(59,130,246,0.3)] hover:border-blue-500/50 transition-all duration-300 group will-change-transform">
+                <h3 className="text-2xl font-bold mb-6 flex justify-center items-center gap-3 text-white group-hover:text-blue-400 transition-colors drop-shadow-md">
+                  <FaDatabase className="text-blue-500 group-hover:rotate-12 transition-transform duration-500 text-3xl" /> Databases
+                </h3>
+                <div className="flex flex-wrap justify-center gap-3">
+                  {Databases.map((tech, key) => (
+                    <span
+                      key={key}
+                      onMouseEnter={() => setHoveredSkill(tech)}
+                      onMouseLeave={() => setHoveredSkill(null)}
+                      className={`bg-zinc-800 text-gray-300 py-1.5 px-4 rounded-full text-sm border border-white/5 hover:bg-gradient-to-r hover:from-blue-500 hover:to-cyan-500 hover:text-white hover:border-transparent hover:scale-105 hover:shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all duration-200 cursor-pointer ${hoveredSkill === tech ? "ring-2 ring-blue-400/50" : ""}`}
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* AI Tools */}
+              <div className="bg-black/40 backdrop-blur-lg rounded-2xl p-8 border border-white/10 hover:-translate-y-2 hover:shadow-[0_10px_40px_rgba(59,130,246,0.3)] hover:border-blue-500/50 transition-all duration-300 group will-change-transform">
+                <h3 className="text-2xl font-bold mb-6 flex justify-center items-center gap-3 text-white group-hover:text-blue-400 transition-colors drop-shadow-md">
+                  <FaRobot className="text-blue-500 group-hover:rotate-12 transition-transform duration-500 text-3xl" /> AI & LLMs
+                </h3>
+                <div className="flex flex-wrap justify-center gap-3">
+                  {AiTools.map((tech, key) => (
+                    <span
+                      key={key}
+                      onMouseEnter={() => setHoveredSkill(tech)}
+                      onMouseLeave={() => setHoveredSkill(null)}
+                      className={`bg-zinc-800 text-gray-300 py-1.5 px-4 rounded-full text-sm border border-white/5 hover:bg-gradient-to-r hover:from-blue-500 hover:to-cyan-500 hover:text-white hover:border-transparent hover:scale-105 hover:shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all duration-200 cursor-pointer ${hoveredSkill === tech ? "ring-2 ring-blue-400/50" : ""}`}
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Languages */}
+              <div className="bg-black/40 backdrop-blur-lg rounded-2xl p-8 border border-white/10 hover:-translate-y-2 hover:shadow-[0_10px_40px_rgba(59,130,246,0.3)] hover:border-blue-500/50 transition-all duration-300 group will-change-transform">
+                <h3 className="text-2xl font-bold mb-6 flex justify-center items-center gap-3 text-white group-hover:text-blue-400 transition-colors drop-shadow-md">
+                  <FaLaptopCode className="text-blue-500 group-hover:rotate-12 transition-transform duration-500 text-3xl" /> Languages
+                </h3>
+                <div className="flex flex-wrap justify-center gap-3">
+                  {Languages.map((tech, key) => (
+                    <span
+                      key={key}
+                      onMouseEnter={() => setHoveredSkill(tech)}
+                      onMouseLeave={() => setHoveredSkill(null)}
+                      className={`bg-zinc-800 text-gray-300 py-1.5 px-4 rounded-full text-sm border border-white/5 hover:bg-gradient-to-r hover:from-blue-500 hover:to-cyan-500 hover:text-white hover:border-transparent hover:scale-105 hover:shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all duration-200 cursor-pointer ${hoveredSkill === tech ? "ring-2 ring-blue-400/50" : ""}`}
                     >
                       {tech}
                     </span>
@@ -121,9 +179,9 @@ export const About = () => {
               </div>
 
               {/* Tools */}
-              <div className="bg-zinc-950/50 rounded-2xl p-8 border border-white/5 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(59,130,246,0.1)] hover:border-blue-500/20 transition-all duration-500 group">
-                <h3 className="text-xl font-bold mb-6 flex justify-center items-center gap-3 text-white group-hover:text-blue-400 transition-colors">
-                  <FaTools className="text-blue-500 group-hover:rotate-12 transition-transform duration-500" /> Tools & Platforms
+              <div className="bg-black/40 backdrop-blur-lg rounded-2xl p-8 border border-white/10 hover:-translate-y-2 hover:shadow-[0_10px_40px_rgba(59,130,246,0.3)] hover:border-blue-500/50 transition-all duration-300 group will-change-transform">
+                <h3 className="text-2xl font-bold mb-6 flex justify-center items-center gap-3 text-white group-hover:text-blue-400 transition-colors drop-shadow-md">
+                  <FaTools className="text-blue-500 group-hover:rotate-12 transition-transform duration-500 text-3xl" /> Tools & Platforms
                 </h3>
                 <div className="flex flex-wrap justify-center gap-3">
                   {tools.map((tool, key) => (
@@ -131,8 +189,7 @@ export const About = () => {
                       key={key}
                       onMouseEnter={() => setHoveredSkill(tool)}
                       onMouseLeave={() => setHoveredSkill(null)}
-                      className={`bg-zinc-800 text-gray-300 py-1.5 px-4 rounded-full text-sm border border-white/5 hover:bg-gradient-to-r hover:from-blue-500 hover:to-cyan-500 hover:text-white hover:border-transparent hover:scale-110 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all duration-300 cursor-pointer ${hoveredSkill === tool ? "ring-2 ring-blue-400/50" : ""
-                        }`}
+                      className={`bg-zinc-800 text-gray-300 py-1.5 px-4 rounded-full text-sm border border-white/5 hover:bg-gradient-to-r hover:from-blue-500 hover:to-cyan-500 hover:text-white hover:border-transparent hover:scale-105 hover:shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all duration-200 cursor-pointer ${hoveredSkill === tool ? "ring-2 ring-blue-400/50" : ""}`}
                     >
                       {tool}
                     </span>

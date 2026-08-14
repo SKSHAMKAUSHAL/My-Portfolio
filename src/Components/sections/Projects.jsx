@@ -2,7 +2,7 @@ import { RevealOnScroll } from "./RevealOnScroll";
 import { useState, useEffect } from "react";
 import { FaGithub, FaExternalLinkAlt } from "react-icons/fa";
 import { db } from "../../firebase";
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
+import { collection, onSnapshot, query } from "firebase/firestore";
 
 const ProjectDescription = ({ text }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -27,7 +27,6 @@ const ProjectDescription = ({ text }) => {
 
 export const Projects = () => {
   const [showAll, setShowAll] = useState(false);
-  const [hoveredIndex, setHoveredIndex] = useState(null);
 
   const [projects, setProjects] = useState([]);
 
@@ -57,10 +56,10 @@ export const Projects = () => {
   return (
     <section
       id="projects"
-      className="min-h-screen flex items-center justify-center py-20 relative overflow-hidden"
+      className="min-h-screen flex items-center justify-center py-20 relative overflow-hidden bg-black"
     >
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[150px] pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-400/10 rounded-full blur-[150px] pointer-events-none"></div>
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-400/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
 
       <div className="max-w-7xl mx-auto px-4 relative z-10 w-full">
         <RevealOnScroll>
@@ -85,11 +84,11 @@ export const Projects = () => {
 
                 <RevealOnScroll className="h-full relative z-10">
                   <div 
-                    className="bg-zinc-900 rounded-2xl border border-white/5 overflow-hidden h-full flex flex-col w-full transition-all duration-500 ease-out group-hover:scale-[1.02] group-hover:border-blue-500/40"
+                    className="bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden h-full flex flex-col w-full transition-all duration-500 ease-out group-hover:scale-[1.02] group-hover:border-blue-500/40 group-hover:shadow-[0_10px_40px_rgba(59,130,246,0.2)]"
                   >
                     
                     {/* Image Container */}
-                    <div className="relative overflow-hidden flex-shrink-0 bg-zinc-900 w-full h-56 border-b border-white/5">
+                    <div className="relative overflow-hidden flex-shrink-0 bg-black/50 w-full h-56 border-b border-white/10">
                       <img
                         src={project.image}
                         alt={project.title}
@@ -127,7 +126,7 @@ export const Projects = () => {
                           href={project.github}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-zinc-800 text-white rounded-xl text-sm font-semibold hover:bg-zinc-700 transition-colors border border-white/5"
+                          className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-white/5 text-white rounded-xl text-sm font-semibold hover:bg-white/10 transition-colors border border-white/10"
                         >
                           <FaGithub size={16} />
                           <span>GitHub</span>

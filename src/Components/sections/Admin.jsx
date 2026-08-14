@@ -91,7 +91,6 @@ export const Admin = () => {
   const [newProject, setNewProject] = useState({ title: "", description: "", tech: "", github: "", live: "" });
   const [projImage, setProjImage] = useState(null);
   const [newJourney, setNewJourney] = useState({ title: "", description: "", icon: "🎓" });
-  const [newProfilePic, setNewProfilePic] = useState(null);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -293,7 +292,7 @@ export const Admin = () => {
       const croppedImageBase64 = await getCroppedImg(cropImageSrc, croppedAreaPixels);
       try {
         await updateDoc(doc(db, "settings", "profile"), { proPicUrl: croppedImageBase64 });
-      } catch (err) {
+      } catch {
         await setDoc(doc(db, "settings", "profile"), { proPicUrl: croppedImageBase64 });
       }
       alert("Profile picture updated!");
